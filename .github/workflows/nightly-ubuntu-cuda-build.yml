@@ -131,11 +131,34 @@ jobs:
       - name: Build
         run: cmake --build build -j $(nproc)
 
+      - name: Bundle executable with vcpkg .so dependencies
+        run: |
+          set -e
+          BUILD_DIR="${{ github.workspace }}/build"
+          # TODO: change this to the actual name of your main binary in build/bin
+          APP_NAME="LichtFeld-Studio" 
+  
+          BUNDLE_DIR="${BUILD_DIR}/bundle"
+          mkdir -p "${BUNDLE_DIR}"
+  
+          # Copy the main executable
+          cp "${BUILD_DIR}/bin/${APP_NAME}" "${BUNDLE_DIR}/"
+  
+          cd "${BUNDLE_DIR}"
+  
+          # Copy only the vcpkg-provided shared libraries the executable depends on
+          ldd "./${APP_NAME}" \
+            | awk '/=>/ {print $3}' \
+            | grep "${BUILD_DIR}/vcpkg_installed" \
+            | xargs -r -I{} cp -v "{}" .
+  
+          # Make the binary look for libs in its own directory
+          patchelf --set-rpath '$ORIGIN' "${APP_NAME}"
+
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: lichtfeld-studio-${{ matrix.build_type }}-linux-cuda
-          # You can narrow this if you know the exact binary path, e.g. build/bin/*
-          path: build/
+          name: lichtfeld-studio-${{ matrix.build_type }}-linux-cuda-bundle
+          path: build/bundle/
           if-no-files-found: error
           retention-days: 7

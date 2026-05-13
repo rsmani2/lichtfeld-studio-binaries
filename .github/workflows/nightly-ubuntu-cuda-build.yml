@@ -134,7 +134,7 @@ jobs:
       - name: Bundle executable with vcpkg .so dependencies
         run: |
           set -e
-          BUILD_DIR="${{ github.workspace }}/build"
+          BUILD_DIR="build"
           # TODO: change this to the actual name of your main binary in build/bin
           APP_NAME="LichtFeld-Studio" 
   

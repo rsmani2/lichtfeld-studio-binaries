@@ -142,7 +142,7 @@ jobs:
           mkdir -p "${BUNDLE_DIR}"
   
           # Copy the main executable
-          cp "${BUILD_DIR}/bin/${APP_NAME}" "${BUNDLE_DIR}/"
+          cp "${BUILD_DIR}/${APP_NAME}" "${BUNDLE_DIR}/"
   
           cd "${BUNDLE_DIR}"
   
